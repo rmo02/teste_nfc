@@ -17,32 +17,18 @@
   <script>
     const startButton = document.getElementById('startNfc');
     const output = document.getElementById('output');
-
+  
     startButton.addEventListener('click', async () => {
       if ('NDEFReader' in window) {
         const reader = new NDEFReader();
         try {
           await reader.scan();
           output.innerHTML = "Aguardando aproximação do cartão...";
-
+  
           reader.onreading = (event) => {
-            output.innerHTML = "<strong>Cartão lido com sucesso!</strong><br><br>";
-
-            for (const record of event.message.records) {
-              output.innerHTML += `Tipo: ${record.recordType}<br>`;
-
-              if (record.recordType === "text") {
-                const textDecoder = new TextDecoder(record.encoding || "utf-8");
-                output.innerHTML += `Texto: ${textDecoder.decode(record.data)}<br>`;
-              } else if (record.recordType === "url") {
-                const textDecoder = new TextDecoder();
-                output.innerHTML += `URL: ${textDecoder.decode(record.data)}<br>`;
-              } else {
-                output.innerHTML += "Tipo de dado não suportado para exibição.<br>";
-              }
-            }
+            output.innerHTML = "<strong>Cartão detectado!</strong> (mas sem conteúdo NDEF)";
           };
-
+  
           reader.onerror = (event) => {
             output.innerHTML = "Erro ao tentar ler NFC. Tente novamente.";
           };
