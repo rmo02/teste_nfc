@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teste de Leitura NFC</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; padding: 2rem;">
+
+  <h1>Leitor NFC - Teste</h1>
+  <p>Pressione o botão e aproxime seu cartão NFC.</p>
+
+  <button id="startNfc" style="padding: 1rem 2rem; font-size: 1.2rem; cursor: pointer;">Ler NFC</button>
+
+  <div id="output" style="margin-top: 2rem; font-size: 1rem;"></div>
+
+  <script>
+    const startButton = document.getElementById('startNfc');
+    const output = document.getElementById('output');
+
+    startButton.addEventListener('click', async () => {
+      if ('NDEFReader' in window) {
+        const reader = new NDEFReader();
+        try {
+          await reader.scan();
+          output.innerHTML = "Aguardando aproximação do cartão...";
+
+          reader.onreading = (event) => {
+            output.innerHTML = "<strong>Cartão lido com sucesso!</strong><br><br>";
+
+            for (const record of event.message.records) {
+              output.innerHTML += `Tipo: ${record.recordType}<br>`;
+
+              if (record.recordType === "text") {
+                const textDecoder = new TextDecoder(record.encoding || "utf-8");
+                output.innerHTML += `Texto: ${textDecoder.decode(record.data)}<br>`;
+              } else if (record.recordType === "url") {
+                const textDecoder = new TextDecoder();
+                output.innerHTML += `URL: ${textDecoder.decode(record.data)}<br>`;
+              } else {
+                output.innerHTML += "Tipo de dado não suportado para exibição.<br>";
+              }
+            }
+          };
+
+          reader.onerror = (event) => {
+            output.innerHTML = "Erro ao tentar ler NFC. Tente novamente.";
+          };
+        } catch (error) {
+          output.innerHTML = "Erro: " + error.message;
+        }
+      } else {
+        output.innerHTML = "Este dispositivo/navegador não suporta leitura NFC.";
+      }
+    });
+  </script>
+
+</body>
+</html>
